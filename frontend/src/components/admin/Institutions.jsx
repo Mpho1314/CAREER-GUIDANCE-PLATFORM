@@ -6,7 +6,7 @@ export default function Institutions() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
-  const [editingId, setEditingId] = useState(null); // store ID of institution being edited
+  const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({ name: "", email: "", address: "" });
 
   const fetchInstitutions = async () => {
@@ -14,9 +14,7 @@ export default function Institutions() {
       const res = await fetch("https://careerplatform-z4jj.onrender.com/admin/institutions");
       const data = await res.json();
       if (data.success) setInstitutions(data.institutions);
-    } catch (err) {
-      console.error("Error fetching institutions:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const addInstitution = async () => {
@@ -27,39 +25,21 @@ export default function Institutions() {
         body: JSON.stringify({ name, email, address }),
       });
       const data = await res.json();
-      if (data.success) {
-        fetchInstitutions();
-        setName(""); setEmail(""); setAddress("");
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error("Error adding institution:", err);
-    }
+      if (data.success) { fetchInstitutions(); setName(""); setEmail(""); setAddress(""); } 
+      else alert(data.message);
+    } catch (err) { console.error(err); }
   };
 
   const deleteInstitution = async (id) => {
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/admin/institutes/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`https://careerplatform-z4jj.onrender.com/admin/institutes/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) fetchInstitutions();
-    } catch (err) {
-      console.error("Error deleting institution:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
-  const startEditing = (inst) => {
-    setEditingId(inst.id);
-    setEditData({ name: inst.name, email: inst.email, address: inst.address });
-  };
-
-  const cancelEditing = () => {
-    setEditingId(null);
-    setEditData({ name: "", email: "", address: "" });
-  };
-
+  const startEditing = (inst) => { setEditingId(inst.id); setEditData({ name: inst.name, email: inst.email, address: inst.address }); };
+  const cancelEditing = () => { setEditingId(null); setEditData({ name: "", email: "", address: "" }); };
   const updateInstitution = async () => {
     try {
       const res = await fetch(`https://careerplatform-z4jj.onrender.com/admin/institutes/${editingId}`, {
@@ -68,23 +48,16 @@ export default function Institutions() {
         body: JSON.stringify(editData),
       });
       const data = await res.json();
-      if (data.success) {
-        fetchInstitutions();
-        cancelEditing();
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error("Error updating institution:", err);
-    }
+      if (data.success) { fetchInstitutions(); cancelEditing(); } else alert(data.message);
+    } catch (err) { console.error(err); }
   };
 
-  useEffect(() => {
-    fetchInstitutions();
-  }, []);
+  useEffect(() => { fetchInstitutions(); }, []);
 
   return (
     <div className="admin-page">
+      <button className="back-btn" onClick={() => window.history.back()}>← Back</button>
+
       <header className="admin-header">
         <h3>Manage Institutions</h3>
         <p className="muted">Create, view, edit, and remove registered institutions.</p>
@@ -92,27 +65,9 @@ export default function Institutions() {
 
       <section className="surface">
         <div className="form-grid">
-          <input
-            className="input"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Institution Name"
-          />
-          <input
-            className="input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Institution Email"
-          />
-          <input
-            className="input full"
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Institution Address"
-          />
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Institution Name" />
+          <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Institution Email" />
+          <input className="input full" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Institution Address" />
         </div>
         <div className="actions">
           <button className="btn primary" onClick={addInstitution}>Add Institution</button>
@@ -125,24 +80,9 @@ export default function Institutions() {
             <li key={inst.id} className="institution-item">
               {editingId === inst.id ? (
                 <div className="edit-form">
-                  <input
-                    className="input"
-                    type="text"
-                    value={editData.name}
-                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  />
-                  <input
-                    className="input"
-                    type="email"
-                    value={editData.email}
-                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  />
-                  <input
-                    className="input"
-                    type="text"
-                    value={editData.address}
-                    onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                  />
+                  <input className="input" value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} />
+                  <input className="input" value={editData.email} onChange={(e) => setEditData({ ...editData, email: e.target.value })} />
+                  <input className="input" value={editData.address} onChange={(e) => setEditData({ ...editData, address: e.target.value })} />
                   <button className="btn primary" onClick={updateInstitution}>Save</button>
                   <button className="btn muted" onClick={cancelEditing}>Cancel</button>
                 </div>

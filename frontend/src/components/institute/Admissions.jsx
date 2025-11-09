@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Admissions = ({ user }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user || !user.institutionId) return;
@@ -10,31 +12,31 @@ const Admissions = ({ user }) => {
     const fetchCoursesWithApplications = async () => {
       setLoading(true);
       try {
-        // Fetch all courses for this institute
-        const resCourses = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/courses`);
+        const resCourses = await fetch(
+          `https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/courses`
+        );
         const dataCourses = await resCourses.json();
         if (!resCourses.ok || !dataCourses.success) {
-          console.warn("⚠️ Failed to fetch courses:", dataCourses.message);
           setLoading(false);
           return;
         }
 
-        // For each course, fetch its applications
         const coursesWithApplications = await Promise.all(
           dataCourses.courses.map(async (course) => {
-            const resApps = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/applications`);
+            const resApps = await fetch(
+              `https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/applications`
+            );
             const dataApps = await resApps.json();
             const applications = dataApps.success
-              ? dataApps.applications.filter(app => app.courseId === course.id)
+              ? dataApps.applications.filter((app) => app.courseId === course.id)
               : [];
             return { ...course, applications };
           })
         );
 
         setCourses(coursesWithApplications);
-        console.log("✅ Courses with applications fetched:", coursesWithApplications);
       } catch (error) {
-        console.error("❌ Error fetching courses and applications:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -51,35 +53,37 @@ const Admissions = ({ user }) => {
       );
       const data = await res.json();
       if (res.ok && data.success) {
-        alert(`✅ Application ${applicationId} published successfully`);
-        // Refresh applications after publishing
-        setCourses(prev =>
-          prev.map(course => ({
+        alert(`Application ${applicationId} published successfully`);
+        setCourses((prev) =>
+          prev.map((course) => ({
             ...course,
-            applications: course.applications.map(app =>
+            applications: course.applications.map((app) =>
               app.id === applicationId ? { ...app, status: "published" } : app
-            )
+            ),
           }))
         );
       } else {
-        console.warn("⚠️ Failed to publish application:", data.message);
+        console.warn("Failed to publish:", data.message);
       }
     } catch (error) {
-      console.error("❌ Error publishing application:", error);
+      console.error(error);
     }
   };
 
   return (
     <div className="dashboard-main">
+      <button className="back-btn" onClick={() => navigate("/dashboard/institute")}>
+        ← Back to Institute Panel
+      </button>
       <h1>Publish Admissions</h1>
       {loading && <p>Loading courses and applications...</p>}
       {courses.length === 0 && !loading && <p>No courses found.</p>}
       <div className="card-grid">
-        {courses.map(course => (
+        {courses.map((course) => (
           <div className="card" key={course.id}>
             <h3>{course.name}</h3>
             {course.applications.length === 0 && <p>No applications yet.</p>}
-            {course.applications.map(app => (
+            {course.applications.map((app) => (
               <div key={app.id} style={{ marginBottom: "10px" }}>
                 <p>
                   <strong>{app.studentName}</strong> - Status: <em>{app.status}</em>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../components/styles/AdminCourses.css"; // add modern styles
+import "../../components/styles/AdminCourses.css";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -7,34 +7,24 @@ export default function Courses() {
   const [facultyId, setFacultyId] = useState("");
   const [name, setName] = useState("");
 
-  // Fetch all courses
   const fetchCourses = async () => {
     try {
       const res = await fetch("https://careerplatform-z4jj.onrender.com/admin/courses");
       const data = await res.json();
       if (data.success) setCourses(data.courses);
-    } catch (err) {
-      console.error("Error fetching courses:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
-  // Fetch all faculties for dropdown
   const fetchFaculties = async () => {
     try {
       const res = await fetch("https://careerplatform-z4jj.onrender.com/admin/faculties");
       const data = await res.json();
       if (data.success) setFaculties(data.faculties);
-    } catch (err) {
-      console.error("Error fetching faculties:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
-  // Add new course
   const addCourse = async () => {
-    if (!name || !facultyId) {
-      alert("Please fill all fields");
-      return;
-    }
+    if (!name || !facultyId) { alert("Please fill all fields"); return; }
     try {
       const res = await fetch("https://careerplatform-z4jj.onrender.com/admin/courses", {
         method: "POST",
@@ -42,38 +32,27 @@ export default function Courses() {
         body: JSON.stringify({ name, facultyId }),
       });
       const data = await res.json();
-      if (data.success) {
-        fetchCourses();
-        setName("");
-        setFacultyId("");
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error("Error adding course:", err);
-    }
+      if (data.success) { fetchCourses(); setName(""); setFacultyId(""); } 
+      else alert(data.message);
+    } catch (err) { console.error(err); }
   };
 
-  // Delete course
   const deleteCourse = async (id) => {
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/admin/courses/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`https://careerplatform-z4jj.onrender.com/admin/courses/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) fetchCourses();
-    } catch (err) {
-      console.error("Error deleting course:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
-  useEffect(() => {
-    fetchCourses();
-    fetchFaculties();
-  }, []);
+  useEffect(() => { fetchCourses(); fetchFaculties(); }, []);
 
   return (
     <div className="admin-page">
+      <button className="back-btn" onClick={() => window.history.back()}>
+        ← Back
+      </button>
+
       <header className="admin-header">
         <h3>Manage Courses</h3>
         <p className="muted">Create, view, and remove courses associated with faculties.</p>
@@ -81,28 +60,12 @@ export default function Courses() {
 
       <section className="surface">
         <div className="form-grid">
-          <input
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Course Name"
-          />
-
-          {/* Dropdown for faculty selection */}
-          <select
-            className="input"
-            value={facultyId}
-            onChange={(e) => setFacultyId(e.target.value)}
-          >
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Course Name" />
+          <select className="input" value={facultyId} onChange={(e) => setFacultyId(e.target.value)}>
             <option value="">Select Faculty</option>
-            {faculties.map((fac) => (
-              <option key={fac.id} value={fac.id}>
-                {fac.name}
-              </option>
-            ))}
+            {faculties.map((fac) => (<option key={fac.id} value={fac.id}>{fac.name}</option>))}
           </select>
         </div>
-
         <div className="actions">
           <button className="btn primary" onClick={addCourse}>Add Course</button>
         </div>
@@ -121,20 +84,6 @@ export default function Courses() {
           ))}
         </ul>
       </section>
-
-      <footer className="page-footer">
-        <div className="footer-content">
-          <div className="footer-left">
-            <strong>Career Guidance Admin</strong>
-            <span>© {new Date().getFullYear()}</span>
-          </div>
-          <nav className="footer-right" aria-label="Footer">
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-            <a href="/privacy">Privacy</a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

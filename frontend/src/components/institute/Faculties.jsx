@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../components/styles/Panel.css";
 
 const Faculties = () => {
@@ -6,19 +7,20 @@ const Faculties = () => {
   const [newFaculty, setNewFaculty] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
+  const navigate = useNavigate();
 
-  // 🔹 Get the logged-in institute info
   const institute = JSON.parse(localStorage.getItem("user"));
-  const instituteId = institute?.uid || institute?.id; // adjust based on your stored user object
+  const instituteId = institute?.uid || institute?.id;
 
-  // Fetch faculties from backend
   const fetchFaculties = async () => {
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties`);
+      const res = await fetch(
+        `https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties`
+      );
       const data = await res.json();
       if (data.success) setFaculties(data.faculties);
     } catch (err) {
-      console.error("Fetch faculties error:", err);
+      console.error(err);
     }
   };
 
@@ -26,53 +28,56 @@ const Faculties = () => {
     if (instituteId) fetchFaculties();
   }, [instituteId]);
 
-  // Add new faculty
   const addFaculty = async () => {
     if (!newFaculty) return alert("Enter faculty name");
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newFaculty }),
-      });
+      const res = await fetch(
+        `https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newFaculty }),
+        }
+      );
       const data = await res.json();
       if (data.success) {
         fetchFaculties();
         setNewFaculty("");
       }
     } catch (err) {
-      console.error("Add faculty error:", err);
+      console.error(err);
     }
   };
 
-  // Delete faculty
   const deleteFaculty = async (facultyId) => {
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties/${facultyId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties/${facultyId}`,
+        { method: "DELETE" }
+      );
       const data = await res.json();
       if (data.success) fetchFaculties();
     } catch (err) {
-      console.error("Delete faculty error:", err);
+      console.error(err);
     }
   };
 
-  // Start editing
   const startEditing = (faculty) => {
     setEditingId(faculty.id);
     setEditingName(faculty.name);
   };
 
-  // Save edited faculty
   const saveEdit = async () => {
     if (!editingName) return alert("Faculty name cannot be empty");
     try {
-      const res = await fetch(`https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties/${editingId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editingName }),
-      });
+      const res = await fetch(
+        `https://careerplatform-z4jj.onrender.com/institute/${instituteId}/faculties/${editingId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: editingName }),
+        }
+      );
       const data = await res.json();
       if (data.success) {
         setEditingId(null);
@@ -80,12 +85,15 @@ const Faculties = () => {
         fetchFaculties();
       }
     } catch (err) {
-      console.error("Update faculty error:", err);
+      console.error(err);
     }
   };
 
   return (
     <div className="dashboard-main">
+      <button className="back-btn" onClick={() => navigate("/dashboard/institute")}>
+        ← Back to Institute Panel
+      </button>
       <h1>Faculties</h1>
       <div className="card-grid">
         {faculties.map((fac) => (
@@ -109,7 +117,6 @@ const Faculties = () => {
             )}
           </div>
         ))}
-
         <div className="card">
           <input
             type="text"

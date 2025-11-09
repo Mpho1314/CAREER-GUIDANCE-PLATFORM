@@ -14,21 +14,29 @@ const LandingPage = () => {
 
   return (
     <div className="landing-container">
-      <h1 className="landing-title">Career Guidance Portal</h1>
-      <p className="landing-subtitle">Select your role to continue</p>
+      <header className="landing-header">
+        <h1 className="landing-title">Career Guidance Portal</h1>
+        <p className="landing-subtitle">Select your role to continue</p>
+      </header>
 
-      <div className="role-grid">
-        {roles.map((role) => (
+      <main className="role-grid">
+        {roles.map((role, idx) => (
           <div
-            key={role.title}
+            key={idx}
             className="role-card"
             onClick={() => navigate(role.path)}
           >
-            {/* removed icons */}
-            <h3>{role.title}</h3>
+            <h3 className="role-title">{role.title}</h3>
+            <p className="role-description">
+              Enter the {role.title} dashboard
+            </p>
           </div>
         ))}
-      </div>
+      </main>
+
+      <footer className="landing-footer">
+        <span>© {new Date().getFullYear()} Career Guidance Portal</span>
+      </footer>
     </div>
   );
 };

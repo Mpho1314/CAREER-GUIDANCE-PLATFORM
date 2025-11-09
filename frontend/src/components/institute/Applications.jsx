@@ -7,58 +7,28 @@ const Applications = ({ user }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("📌 Applications component mounted");
-    console.log("👤 Current user object:", user);
-
-    if (!user) {
-      console.warn("⚠️ No user logged in. Redirect to login required.");
-      navigate("/institute/login");
-      return;
-    }
-
-    if (!user.institutionId) {
-      console.warn("⚠️ No institutionId provided. Cannot fetch applications.");
-      return;
-    }
+    if (!user?.institutionId) return;
 
     const fetchApplications = async () => {
       setLoading(true);
       try {
-        console.log(`🔹 Fetching applications for instituteId: ${user.institutionId}`);
-
         const res = await fetch(
           `https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/applications`
         );
-
-        console.log("🔹 Raw response object:", res);
-
-        if (!res.ok) {
-          console.error("❌ Failed to fetch applications. Status:", res.status);
-          return;
-        }
-
         const data = await res.json();
-        console.log("🧾 Backend response data:", data);
-
-        if (data.success) {
-          setApplications(data.applications);
-          console.log("✅ Applications loaded successfully");
-        } else {
-          console.warn("⚠️ Backend returned failure:", data.message);
-        }
-      } catch (error) {
-        console.error("❌ Error fetching applications:", error);
+        if (data.success) setApplications(data.applications);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchApplications();
-  }, [user, navigate]);
+  }, [user]);
 
   const updateStatus = async (appId, newStatus) => {
     try {
-      console.log(`⚡ Updating status for application ${appId} -> ${newStatus}`);
       const res = await fetch(
         `https://careerplatform-z4jj.onrender.com/institute/${user.institutionId}/admissions/${appId}`,
         {
@@ -67,29 +37,22 @@ const Applications = ({ user }) => {
           body: JSON.stringify({ status: newStatus }),
         }
       );
-
       const data = await res.json();
-      console.log("🧾 Status update response:", data);
-
       if (data.success) {
         setApplications((prev) =>
-          prev.map((app) =>
-            app.id === appId ? { ...app, status: newStatus } : app
-          )
+          prev.map((app) => (app.id === appId ? { ...app, status: newStatus } : app))
         );
-        console.log(`✅ Application ${appId} status updated to ${newStatus}`);
-      } else {
-        console.warn("⚠️ Failed to update status:", data.message);
       }
-    } catch (error) {
-      console.error("❌ Error updating status:", error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  if (!user) return null;
-
   return (
     <div className="dashboard-main">
+      <button className="back-btn" onClick={() => navigate("/dashboard/institute")}>
+        ← Back to Institute Panel
+      </button>
       <h1>Student Applications</h1>
       {loading && <p>Loading applications...</p>}
       {applications.length === 0 && !loading && <p>No applications found.</p>}
@@ -109,20 +72,14 @@ const Applications = ({ user }) => {
               <td>{app.courseName}</td>
               <td>{app.status}</td>
               <td>
-                {app.status === "pending" && (
+                {app.status === "pending" ? (
                   <>
-                    <button
-                      onClick={() => updateStatus(app.id, "approved")}
-                      style={{ marginRight: "5px" }}
-                    >
-                      Approve
-                    </button>
-                    <button onClick={() => updateStatus(app.id, "rejected")}>
-                      Reject
-                    </button>
+                    <button onClick={() => updateStatus(app.id, "approved")}>Approve</button>
+                    <button onClick={() => updateStatus(app.id, "rejected")}>Reject</button>
                   </>
+                ) : (
+                  <span>—</span>
                 )}
-                {app.status !== "pending" && <span>—</span>}
               </td>
             </tr>
           ))}

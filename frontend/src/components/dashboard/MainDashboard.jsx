@@ -1,131 +1,72 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../components/styles/Dashboard.css";
-import { FaUniversity, FaBook, FaClipboardList, FaBuilding, FaUser, FaFileUpload, FaBriefcase, FaSignOutAlt } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 
 const MainDashboard = ({ user }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate("/"); // Redirect to landing/login page if no user
-    }
+    if (!user) navigate("/"); // redirect if not logged in
   }, [user, navigate]);
 
   if (!user) return null;
 
   const { role, name } = user;
 
+  // Role-based menu items
+  const menuItems = {
+    admin: [
+      { name: "Manage Institutions", path: "/admin/institutions" },
+      { name: "Manage Faculties", path: "/admin/faculties" },
+      { name: "Manage Courses", path: "/admin/courses" },
+      { name: "View Reports", path: "/admin/reports" },
+      { name: "Manage Companies", path: "/admin/companies" },
+    ],
+    institute: [
+      { name: "Add Faculty", path: "/institute/faculties" },
+      { name: "Add Courses", path: "/institute/courses" },
+      { name: "Student Applications", path: "/institute/applications" },
+      { name: "Publish Admissions", path: "/institute/admissions" },
+    ],
+    student: [
+      { name: "Apply for Course", path: "/student/apply-course" },
+      { name: "Upload Documents", path: "/student/upload-document" },
+      { name: "Profile", path: "/student/profile" },
+      { name: "Admissions Results", path: "/student/admissions" },
+      { name: "Job Notifications", path: "/student/jobs" },
+    ],
+    company: [
+      { name: "Post Opportunities", path: "/company/post-job" },
+      { name: "View Applications", path: "/company/applications" },
+    ],
+  };
+
   return (
-    // Removed inline background style; Dashboard.css will apply the photo and overlay
     <div className="dashboard-container">
+      {/* Sidebar for all roles */}
       <aside className="sidebar">
-        <h2 className="sidebar-title">{role.toUpperCase()} PANEL</h2>
-        <ul className="sidebar-nav">
-          {role === "admin" && (
-            <>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/admin/institutions">Manage Institutions</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/admin/faculties">Manage Faculties</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/admin/courses">Manage Courses</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/admin/reports">View Reports</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/admin/companies">Manage Companies</Link>
-              </li>
-            </>
-          )}
-
-          {role === "institute" && (
-            <>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/institute/faculties">Add Faculty</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/institute/courses">Add Courses</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/institute/applications">Student Applications</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/institute/admissions">Publish Admissions</Link>
-              </li>
-            </>
-          )}
-
-          {role === "student" && (
-            <>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/student/apply-course">Apply for Course</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/student/upload-document">Upload Documents</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/student/profile">Profile</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/student/admissions">Admissions Results</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/student/jobs">Job Notifications</Link>
-              </li>
-            </>
-          )}
-
-          {role === "company" && (
-            <>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/company/post-job">Post Opportunities</Link>
-              </li>
-              <li className="nav-item">
-                {/* REMOVED ICON */}
-                <Link className="nav-link" to="/company/applications">View Applications</Link>
-              </li>
-            </>
-          )}
-
-          <li className="nav-item">
-            {/* REMOVED ICON */}
-            <button className="logout-btn" onClick={() => navigate("/")}>Logout</button>
-          </li>
-        </ul>
+        <div className="logo">{role.toUpperCase()} PANEL</div>
+        <div className="sidebar-nav">
+          {menuItems[role].map((item) => (
+            <Link key={item.path} to={item.path} className="nav-link">
+              {item.name}
+            </Link>
+          ))}
+        </div>
+        <button className="logout-btn" onClick={() => navigate("/")}>
+          Logout
+        </button>
       </aside>
 
+      {/* Main Content */}
       <main className="dashboard-main">
-        <div className="dashboard-header">
-          <h1 className="dashboard-title">Welcome, {name || "User"}!</h1>
-          <div className="user-info">
-            <p>Role: <span>{role}</span></p>
-            <p>Name: <span>{name}</span></p>
+        <div className="content-card welcome-card">
+          <div className="welcome-header">
+            <FaUser size={36} className="user-icon" />
+            <h2>Welcome, {name}!</h2>
           </div>
-        </div>
-
-        <div className="content-cards">
-          <div className="content-card">
-            <p>Select a menu option on the left to get started.</p>
-          </div>
+          <p>Select an option from the sidebar to get started.</p>
         </div>
       </main>
     </div>

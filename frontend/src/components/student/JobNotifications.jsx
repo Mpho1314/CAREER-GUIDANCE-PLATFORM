@@ -1,49 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../components/styles/PanelStyles.css";
 
 const JobNotifications = ({ user }) => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (!user?.uid) {
-        console.log("No user UID available yet. Waiting for user data...");
-        return;
-      }
-
+      if (!user?.uid) return;
       setLoading(true);
-      console.log("Fetching job notifications for student:", user.uid);
-
       try {
         const res = await fetch(`https://careerplatform-z4jj.onrender.com/students/${user.uid}/job-notifications`);
         const data = await res.json();
-
-        if (data.success) {
-          console.log("Opportunities received:", data.jobs);
-          setJobs(data.jobs);
-        } else {
-          console.error("Error fetching job notifications:", data.message);
-        }
+        if (data.success) setJobs(data.jobs);
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchNotifications();
   }, [user]);
 
   return (
     <div className="student-panel-container">
+      <button className="back-btn" onClick={() => navigate("/dashboard/student")}>
+        ← Back to Student Panel
+      </button>
       <h2>Job Notifications</h2>
-
-      {loading && <p>Loading opportunities...</p>}
+      {loading && <p>Loading...</p>}
       {!loading && jobs.length === 0 && <p>No opportunities found.</p>}
-
       <div className="card-grid">
-        {jobs.map(job => (
+        {jobs.map((job) => (
           <div key={job.id} className="card">
             <h3>{job.title}</h3>
             <p>Company ID: {job.companyId || "N/A"}</p>

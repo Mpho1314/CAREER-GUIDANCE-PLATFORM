@@ -20,7 +20,13 @@ export default function Reports() {
 
   return (
     <div style={styles.container}>
+      {/* Back Button */}
+      <button style={styles.backBtn} onClick={() => window.history.back()}>
+        ← Back
+      </button>
+
       <h2 style={styles.title}>📊 System Reports</h2>
+
       <div style={styles.grid}>
         <div style={styles.card}>
           <h3>Total Students</h3>
@@ -52,6 +58,17 @@ const styles = {
     padding: "2rem",
     textAlign: "center",
     fontFamily: "Poppins, sans-serif",
+  },
+  backBtn: {
+    display: "inline-block",
+    marginBottom: "1rem",
+    padding: "0.5rem 1rem",
+    fontSize: "1rem",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#00bfa6",
+    color: "white",
+    cursor: "pointer",
   },
   title: {
     marginBottom: "1.5rem",

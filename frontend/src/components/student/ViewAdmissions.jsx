@@ -1,50 +1,37 @@
-// ViewAdmissions.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../components/styles/PanelStyles.css";
 
 const ViewAdmissions = ({ user }) => {
   const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAdmissions = async () => {
-      if (!user?.uid) {
-        console.log("No user UID available yet.");
-        return;
-      }
-
-      console.log("Fetching admissions for user:", user);
-
+      if (!user?.uid) return;
       try {
         const res = await fetch(`https://careerplatform-z4jj.onrender.com/students/admissions/${user.uid}`);
         const data = await res.json();
-
-        console.log("Admissions API response:", data);
-
-        if (data.success) {
-          setAdmissions(data.admissions);
-        } else {
-          console.error("Error fetching admissions:", data.message);
-        }
+        if (data.success) setAdmissions(data.admissions);
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchAdmissions();
   }, [user]);
 
-  if (!user?.uid) return <p>Loading user info...</p>;
-  if (loading) return <p>Loading your admissions...</p>;
+  if (!user?.uid || loading) return <p>Loading...</p>;
 
   return (
     <div className="student-panel-container">
+      <button className="back-btn" onClick={() => navigate("/dashboard/student")}>
+        ← Back to Student Panel
+      </button>
       <h2>My Applications & Results</h2>
-      {admissions.length === 0 ? (
-        <p>No admissions found yet.</p>
-      ) : (
+      {admissions.length === 0 ? <p>No admissions found.</p> : (
         <div className="card-grid">
           {admissions.map((app) => (
             <div key={app.id} className="card">

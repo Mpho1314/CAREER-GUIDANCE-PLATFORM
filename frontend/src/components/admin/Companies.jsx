@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../components/styles/AdminCompanies.css"; // add modern styles
+import "../../components/styles/AdminCompanies.css";
 
 export default function Companies() {
   const [companies, setCompanies] = useState([]);
@@ -26,12 +26,14 @@ export default function Companies() {
     if (data.success) fetchCompanies();
   };
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
+  useEffect(() => { fetchCompanies(); }, []);
 
   return (
     <div className="admin-page">
+      <button className="back-btn" onClick={() => window.history.back()}>
+        ← Back
+      </button>
+
       <header className="admin-header">
         <h3>Manage Companies</h3>
         <p className="muted">Review, approve, suspend, or delete registered companies.</p>
@@ -46,34 +48,14 @@ export default function Companies() {
                 <span className="company-meta">Status: {c.status}</span>
               </div>
               <div className="company-actions">
-                <button className="btn primary" onClick={() => updateStatus(c.id, "approved")}>
-                  Approve
-                </button>
-                <button className="btn warn" onClick={() => updateStatus(c.id, "suspended")}>
-                  Suspend
-                </button>
-                <button className="btn danger" onClick={() => deleteCompany(c.id)}>
-                  Delete
-                </button>
+                <button className="btn primary" onClick={() => updateStatus(c.id, "approved")}>Approve</button>
+                <button className="btn warn" onClick={() => updateStatus(c.id, "suspended")}>Suspend</button>
+                <button className="btn danger" onClick={() => deleteCompany(c.id)}>Delete</button>
               </div>
             </li>
           ))}
         </ul>
       </section>
-
-      <footer className="page-footer">
-        <div className="footer-content">
-          <div className="footer-left">
-            <strong>Career Guidance Admin</strong>
-            <span>© {new Date().getFullYear()}</span>
-          </div>
-          <nav className="footer-right" aria-label="Footer">
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-            <a href="/privacy">Privacy</a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

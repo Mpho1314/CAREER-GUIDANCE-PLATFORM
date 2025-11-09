@@ -1,54 +1,33 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../components/styles/PanelStyles.css";
-import "../../components/styles/StudentUpload.css"; // add modern page styles
+import "../../components/styles/StudentUpload.css";
 
 const UploadDocuments = ({ user }) => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
-  const handleFileChange = (e) => {
-    setFiles([...e.target.files]);
-    console.log("Files selected:", e.target.files);
-  };
+  const handleFileChange = (e) => setFiles([...e.target.files]);
 
   const handleUpload = async () => {
-    if (!user?.uid) {
-      alert("No user ID available. Please log in first.");
-      console.error("Upload attempt without user UID");
-      return;
-    }
-
-    if (files.length === 0) {
-      alert("Please select at least one file to upload.");
-      return;
-    }
+    if (!user?.uid) return alert("Login first");
+    if (files.length === 0) return alert("Select files");
 
     setLoading(true);
-    setMessage("");
-
     try {
-      // Convert files to names for demo purposes (replace with URLs/base64 in production)
-      const documentList = files.map((file) => file.name);
-      console.log("Uploading documents:", documentList);
-
+      const documentList = files.map((f) => f.name);
       const res = await fetch(`https://careerplatform-z4jj.onrender.com/students/${user.uid}/documents`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documents: documentList }),
       });
-
       const data = await res.json();
-      console.log("Upload response:", data);
-
-      if (data.success) {
-        setMessage("✅ " + data.message);
-        setFiles([]);
-      } else {
-        setMessage("❌ " + data.message);
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
+      setMessage(data.success ? `✅ ${data.message}` : `❌ ${data.message}`);
+      if (data.success) setFiles([]);
+    } catch (err) {
+      console.error(err);
       setMessage("⚠️ Error uploading documents.");
     } finally {
       setLoading(false);
@@ -57,49 +36,31 @@ const UploadDocuments = ({ user }) => {
 
   return (
     <div className="student-page">
+      <button className="back-btn" onClick={() => navigate("/dashboard/student")}>
+        ← Back to Student Panel
+      </button>
       <header className="page-header">
         <h2>Upload Documents</h2>
         <p className="muted">Attach your certificates and transcripts.</p>
       </header>
-
       <section className="surface">
         <div className="form-grid">
-          <label className="label" htmlFor="docs">Select documents</label>
-          <input id="docs" className="input file-input" type="file" multiple onChange={handleFileChange} />
+          <label htmlFor="docs">Select documents</label>
+          <input id="docs" type="file" multiple onChange={handleFileChange} />
           <div className="actions">
             <button className="btn primary" onClick={handleUpload} disabled={loading}>
               {loading ? "Uploading..." : "Upload"}
             </button>
           </div>
-
-          {message && <p className="status-message">{message}</p>}
+          {message && <p>{message}</p>}
         </div>
-
         {files.length > 0 && (
           <div className="selected-files">
             <h4>Selected Files</h4>
-            <ul>
-              {files.map((f, idx) => (
-                <li key={idx}>{f.name}</li>
-              ))}
-            </ul>
+            <ul>{files.map((f, i) => <li key={i}>{f.name}</li>)}</ul>
           </div>
         )}
       </section>
-
-      <footer className="page-footer">
-        <div className="footer-content">
-          <div className="footer-left">
-            <strong>Career Guidance</strong>
-            <span>© {new Date().getFullYear()}</span>
-          </div>
-          <nav className="footer-right" aria-label="Footer">
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-            <a href="/privacy">Privacy</a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 };
